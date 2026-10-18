@@ -9,6 +9,15 @@ DisasterEngine::DisasterEngine(Graph* graph)
     this->graph = graph;
 }
 
+bool DisasterEngine::loadMLRiskPredictions(
+    const string& filename)
+{
+    return RiskPredictionLoader::load(
+        *graph,
+        filename
+    );
+}
+
 void DisasterEngine::blockRoad(
     const string& source,
     const string& destination)
@@ -184,4 +193,229 @@ void DisasterEngine::dispatchResource()
     cout << "Priority: "
          << resource.priority
          << endl;
+}
+
+void DisasterEngine::findRoute(
+    const string& source,
+    const string& destination)
+{
+    cout << "\nFinding best rescue route...\n";
+
+    vector<string> route =
+        RouteDecisionEngine::findBestRoute(
+            *graph,
+            source,
+            destination
+        );
+
+    if (route.empty())
+    {
+        cout << "No route available."
+             << endl;
+
+        return;
+    }
+
+    cout << "\nRecommended Rescue Route:\n";
+
+    for (size_t i = 0; i < route.size(); i++)
+    {
+        cout << route[i];
+
+        if (i < route.size() - 1)
+        {
+            cout << " -> ";
+        }
+    }
+
+    cout << endl;
+
+  double cost =
+    RouteDecisionEngine::getRouteCost(
+        *graph,
+        route
+    );
+
+    cout << "Total Route Cost: "
+         << cost
+         << endl;
+}
+void DisasterEngine::reroute(
+    const vector<string>& currentRoute,
+    const string& source,
+    const string& destination)
+{
+    cout << "\nChecking for alternative route...\n";
+
+    vector<string> newRoute =
+        RouteDecisionEngine::reroute(
+            *graph,
+            currentRoute,
+            source,
+            destination
+        );
+
+    if (newRoute.empty())
+    {
+        cout << "No alternative route available."
+             << endl;
+
+        return;
+    }
+
+    cout << "\nUpdated Rescue Route:\n";
+
+    for (size_t i = 0; i < newRoute.size(); i++)
+    {
+        cout << newRoute[i];
+
+        if (i < newRoute.size() - 1)
+        {
+            cout << " -> ";
+        }
+    }
+
+    cout << endl;
+
+    double cost =
+        RouteDecisionEngine::getRouteCost(
+            *graph,
+            newRoute
+        );
+
+    cout << "New Route Cost: "
+         << cost
+         << endl;
+}
+void DisasterEngine::runDisasterSimulation()
+{
+    cout << "\n====================================\n";
+    cout << "     INTEGRATED DISASTER SIMULATION\n";
+    cout << "====================================\n";
+
+        cout << "\n[0] Loading ML Disaster Risk\n";
+
+    if (!loadMLRiskPredictions(
+            "data/risk_predictions.csv"))
+    {
+        cout << "Failed to load ML risk predictions."
+             << endl;
+        return;
+    }
+
+    cout << "ML risk predictions integrated successfully."
+         << endl;
+
+    if (emergencyQueue.isEmpty())
+    {
+        cout << "No emergency available for simulation."
+             << endl;
+        return;
+    }
+
+    Emergency emergency =
+        emergencyQueue.dequeue();
+
+    cout << "\nProcessing Emergency: "
+         << emergency.id
+         << endl;
+
+    cout << "Emergency Location: "
+         << emergency.locationId
+         << endl;
+
+    cout << "Severity: "
+         << emergency.severity
+         << endl;
+
+    cout << "People Affected: "
+         << emergency.peopleAffected
+         << endl;
+
+    if (resourceHeap.isEmpty())
+    {
+        cout << "No rescue resource available."
+             << endl;
+        return;
+    }
+
+    RescueResource resource =
+        resourceHeap.extractMin();
+
+    cout << "\nDispatching Resource: "
+         << resource.id
+         << endl;
+
+    cout << "Resource Type: "
+         << resource.type
+         << endl;
+
+    cout << "Resource Location: "
+         << resource.locationId
+         << endl;
+
+    cout << "Resource Priority: "
+         << resource.priority
+         << endl;
+
+    vector<string> currentRoute =
+        RouteDecisionEngine::findBestRoute(
+            *graph,
+            resource.locationId,
+            emergency.locationId
+        );
+
+    if (currentRoute.empty())
+    {
+        cout << "\nNo rescue route available."
+             << endl;
+        return;
+    }
+
+    cout << "\nInitial Rescue Route:\n";
+
+    for (size_t i = 0; i < currentRoute.size(); i++)
+    {
+        cout << currentRoute[i];
+
+        if (i < currentRoute.size() - 1)
+        {
+            cout << " -> ";
+        }
+    }
+
+    cout << endl;
+
+    if (currentRoute.size() >= 3)
+    {
+        cout << "\nSimulating road failure...\n";
+
+        string blockedSource =
+            currentRoute[1];
+
+        string blockedDestination =
+            currentRoute[2];
+
+        blockRoad(
+            blockedSource,
+            blockedDestination
+        );
+
+        cout << "\nDynamic rerouting triggered...\n";
+
+        reroute(
+            currentRoute,
+            resource.locationId,
+            emergency.locationId
+        );
+    }
+    else
+    {
+        cout << "\nNo intermediate road available "
+             << "for failure simulation."
+             << endl;
+    }
+
+    cout << "\nRescue operation continues.\n";
+    cout << "Emergency response completed.\n";
 }

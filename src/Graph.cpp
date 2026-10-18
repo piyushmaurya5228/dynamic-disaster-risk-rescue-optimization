@@ -401,6 +401,36 @@ int Graph::getRoadCount() const
 }
 
 
+
+bool Graph::updateRoadRisk(
+    const string& source,
+    const string& destination,
+    const string& risk)
+{
+    auto it = adjacencyList.find(source);
+
+    if (it == adjacencyList.end())
+    {
+        return false;
+    }
+
+    for (Edge& edge : it->second)
+    {
+        if (edge.destination == destination)
+        {
+            edge.risk = risk;
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// ==================================================
+// GET LOCATION IDs
+// ==================================================
+
 vector<string> Graph::getLocationIds() const
 {
     vector<string> ids;
@@ -414,6 +444,10 @@ vector<string> Graph::getLocationIds() const
 }
 
 
+// ==================================================
+// GET LOCATION BY ID
+// ==================================================
+
 const Location* Graph::getLocation(const string& locationId) const
 {
     auto it = locations.find(locationId);
@@ -423,5 +457,5 @@ const Location* Graph::getLocation(const string& locationId) const
         return nullptr;
     }
 
-    return &it->second;
+    return &(it->second);
 }

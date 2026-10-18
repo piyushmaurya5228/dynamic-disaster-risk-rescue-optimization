@@ -21,24 +21,63 @@ private:
     unordered_map<string, vector<Edge>> adjacencyList;
 
 public:
-    void addLocation(const Location& location);
-    void addRoad(const string& source, const Edge& edge);
-    void removeRoad(const string& source, const string& destination);
-    void updateRoad(const string& source, const string& destination, const Edge& updatedEdge);
-    void blockRoad(const string& source, const string& destination);
-    void unblockRoad(const string& source, const string& destination);
 
-    vector<Edge> getNeighbors(const string& locationId) const;
+    void addLocation(const Location& location);
+
+    void addRoad(
+        const string& source,
+        const Edge& edge
+    );
+
+    void removeRoad(
+        const string& source,
+        const string& destination
+    );
+
+    void updateRoad(
+        const string& source,
+        const string& destination,
+        const Edge& updatedEdge
+    );
+
+    void blockRoad(
+        const string& source,
+        const string& destination
+    );
+
+    void unblockRoad(
+        const string& source,
+        const string& destination
+    );
+
+    vector<Edge> getNeighbors(
+        const string& locationId
+    ) const;
+
+    bool updateRoadRisk(
+        const string& source,
+        const string& destination,
+        const string& risk
+    );
+
     vector<string> getLocationIds() const;
 
-    const Location* getLocation(const string& locationId) const;
+    const Location* getLocation(
+        const string& locationId
+    ) const;
 
     void displayGraph();
 
-    bool loadLocations(const string& filename);
-    bool loadRoads(const string& filename);
+    bool loadLocations(
+        const string& filename
+    );
+
+    bool loadRoads(
+        const string& filename
+    );
 
     int getLocationCount() const;
+
     int getRoadCount() const;
 };
 
